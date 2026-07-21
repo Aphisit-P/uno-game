@@ -1,0 +1,1 @@
+const SERVER_URL = 'https://uno-game-1i2s.onrender.com'; // ใส่ URL จริงจาก Render ของคุณ

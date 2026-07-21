@@ -1,4 +1,4 @@
-const socket = io(); // ถ้า deploy คนละโดเมน ใส่ io('https://your-server.com')
+const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] }); // ถ้า deploy คนละโดเมน ใส่ io('https://your-server.com')
 
 const params = new URLSearchParams(location.search);
 const roomId = params.get('room') || 'default-room';

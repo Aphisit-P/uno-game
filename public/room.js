@@ -1,4 +1,4 @@
-const socket = io(); // เปลี่ยนเป็น URL server จริงตอน deploy เช่น io('https://uno-server.onrender.com')
+const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] }); // เปลี่ยนเป็น URL server จริงตอน deploy เช่น io('https://uno-server.onrender.com')
 
 const params = new URLSearchParams(location.search);
 const roomId = params.get('room');
