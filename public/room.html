@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>ห้องรอ - UNO Online</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="room-container">
+    <h2>ห้อง: <span id="roomCode"></span></h2>
+
+    <div class="share-link-box">
+      <input id="shareLink" readonly>
+      <button id="copyBtn">คัดลอกลิงก์</button>
+    </div>
+
+    <h3>ผู้เล่นในห้อง (<span id="playerCount">0</span>)</h3>
+    <ul id="playerList"></ul>
+
+    <button id="startGameBtn" class="primary-btn" disabled>
+      เริ่มเกม (ต้องมีอย่างน้อย 2 คน)
+    </button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="room.js"></script>
+</body>
+</html>
