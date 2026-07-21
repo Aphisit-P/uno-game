@@ -5,7 +5,12 @@ const { UnoGame } = require('./game');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
+const io = new Server(server, {
+  cors: {
+    origin: 'https://unobyblackbara.netlify.app', // ใส่ URL จริงจาก Netlify
+    methods: ['GET', 'POST'],
+  },
+});
 
 app.use(express.static('../public'));
 
