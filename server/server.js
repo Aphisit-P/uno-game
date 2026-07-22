@@ -40,7 +40,17 @@ io.on('connection', (socket) => {
     const room = rooms[socket.data.roomId];
     const result = room.playCard(socket.id, cardIndex, chosenColor);
     if (result.error) return socket.emit('errorMsg', result.error);
-    if (result.winner) io.to(room.roomId).emit('gameOver', result.winner);
+    
+    // ✅ มีการเช็กคนชนะตรงนี้แล้ว!
+    if (result.winner) {
+      io.to(room.roomId).emit('gameOver', result.winner);
+      
+      // ถ้าต้องการให้รีเซ็ตเกมหลังจบ 3 วินาที ให้ใส่ setTimeout ตรงนี้ได้ครับ
+      setTimeout(() => {
+        resetGame(room.roomId);
+      }, 3000);
+    }
+    
     broadcastState(room);
   });
 
@@ -108,16 +118,6 @@ function resetGame(roomId) {
 
     // 3. แจ้งเตือนทุกคนในห้องว่าเกมรีเซ็ตแล้ว ให้โหลดหน้าจอใหม่
     io.to(roomId).emit('gameResetSuccess', { players: room.players });
-}
-
-// ตรงจุดที่เช็กคนชนะ (เมื่อการ์ดในมือผู้เล่นเหลือ 0)
-if (player.hand.length === 0) {
-    io.to(roomId).emit('announceWinner', { winnerName: player.name });
-    
-    // รอ 3 วินาทีให้ผู้เล่นเห็นหน้าจอคนชนะ แล้วทำการรีเซ็ตเกม
-    setTimeout(() => {
-        resetGame(roomId);
-    }, 3000);
 }
 
 // เมื่อผู้เล่นกดพร้อม หรือคนครบ ให้เรียกฟังก์ชันนี้

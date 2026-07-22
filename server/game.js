@@ -58,18 +58,6 @@ function resetGame(roomId) {
     io.to(roomId).emit('gameResetSuccess', { players: room.players });
 }
 
-function checkWin(player) {
-  if (player && player.hand && player.hand.length === 0) { // ✅ จะทำงานก็ต่อเมื่อเรียกใช้ฟังก์ชันเท่านั้น
-    io.to(roomId).emit('announceWinner', { winnerName: player.name });
-    
-    // รอ 3 วินาทีให้ผู้เล่นเห็นหน้าจอคนชนะ แล้วทำการรีเซ็ตเกม
-    setTimeout(() => {
-        resetGame(roomId);
-    }, 3000);
-  }
-}
-module.exports = { checkWin };
-
 class UnoGame {
   constructor(roomId) {
     this.roomId = roomId;
@@ -131,7 +119,6 @@ class UnoGame {
         return { winner: player.name };
       }
     }
-module.exports = { checkWin };
 
     // ถ้าเหลือ 1 ใบ แต่ยังไม่ได้กด UNO -> เปิด "หน้าต่างจับผิด" ให้คนอื่น
     if (player.hand.length === 1 && !this.unoCalledBy.has(playerId)) {
