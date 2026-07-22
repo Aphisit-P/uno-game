@@ -10,9 +10,14 @@ if (!roomId || !name) {
 
 let myId = null;
 
+// ---------- debug ช่วยตรวจสอบว่าเชื่อมต่อได้จริงไหม ----------
+socket.on('connect', () => console.log('✅ เชื่อมต่อ server สำเร็จ, socket id:', socket.id));
+socket.on('connect_error', (err) => console.error('❌ เชื่อมต่อ server ไม่ได้:', err.message));
+
 socket.emit('joinRoom', { roomId, name });
 
 socket.on('gameState', (state) => {
+  console.log('📦 ได้รับ gameState:', state); // ลบทิ้งได้เมื่อทุกอย่างทำงานปกติแล้ว
   myId = state.yourId;
 
   document.getElementById('yourName').textContent = `${name} (คุณ)`;
@@ -67,6 +72,7 @@ function renderHand(hand, isMyTurn) {
     el.className = 'card' + (isMyTurn ? '' : ' disabled');
     el.dataset.cardId = `${card.color}-${card.value}-${index}`;
     el.style.background = card.color === 'wild' ? '#333' : cardColorHex(card.color);
+    if (card.color === 'wild') el.style.color = '#fff';
     el.textContent = formatCardLabel(card);
     el.onclick = () => handleCardClick(card, index, el);
     container.appendChild(el);
@@ -108,12 +114,13 @@ function handleCardClick(card, index, cardEl) {
   }
 }
 
-// ---------- กองกลาง ----------
+// ---------- กองกลาง (การ์ดหน้าเปิดให้ทุกคนเห็นเหมือนกัน) ----------
 function renderTopCard(card) {
   if (!card) return;
   const el = document.getElementById('topCard');
   const displayColor = card.color === 'wild' ? (card.chosenColor || 'wild') : card.color;
   el.style.background = displayColor === 'wild' ? '#333' : cardColorHex(displayColor);
+  el.style.color = '#fff';
   el.textContent = formatCardLabel(card);
 }
 
@@ -126,39 +133,53 @@ function cardColorHex(color) {
   return { red: '#d32f2f', yellow: '#fbc02d', green: '#388e3c', blue: '#1976d2' }[color] || '#333';
 }
 
-// ---------- ที่นั่งคู่ต่อสู้ (จัดวงกลมรอบโต๊ะ) ----------
+// ---------- ที่นั่งคู่ต่อสู้ (เห็นแค่หลังการ์ด) ----------
+function assignSeats(n) {
+  if (n <= 1) return ['top'];
+  if (n === 2) return ['left', 'right'];
+  if (n === 3) return ['top', 'left', 'right'];
+  const base = ['top', 'left', 'right'];
+  const arr = [];
+  for (let i = 0; i < n; i++) arr.push(i < 3 ? base[i] : 'overflow');
+  return arr;
+}
+
 function renderOpponents(players, currentPlayerId) {
   const opponents = players.filter(p => p.id !== myId);
-  const container = document.getElementById('opponents');
-  container.innerHTML = '';
+  const seatTop = document.getElementById('seatTop');
+  const seatLeft = document.getElementById('seatLeft');
+  const seatRight = document.getElementById('seatRight');
+  const overflow = document.getElementById('overflowSeats');
+  [seatTop, seatLeft, seatRight, overflow].forEach(el => (el.innerHTML = ''));
 
-  const n = opponents.length;
+  const slots = assignSeats(opponents.length);
+
   opponents.forEach((p, i) => {
-    const angleDeg = n === 1 ? 0 : -140 + (280 * (i + 0.5) / n);
-    const angleRad = (angleDeg * Math.PI) / 180;
-    const x = 50 + 42 * Math.sin(angleRad);
-    const y = 48 - 40 * Math.cos(angleRad);
+    const slot = slots[i];
+    const target = slot === 'top' ? seatTop : slot === 'left' ? seatLeft : slot === 'right' ? seatRight : overflow;
 
-    const seat = document.createElement('div');
-    seat.className = 'opponent-seat' + (p.id === currentPlayerId ? ' active-turn' : '');
-    seat.style.left = `${x}%`;
-    seat.style.top = `${y}%`;
-    seat.innerHTML = `
+    const seatEl = document.createElement('div');
+    seatEl.className = 'opponent-seat' + (p.id === currentPlayerId ? ' active-turn' : '');
+    seatEl.innerHTML = `
+      <div class="opponent-name">${escapeHtml(p.name)} (${p.count})</div>
       <div class="opponent-cards">${renderCardBacks(p.count)}</div>
-      <div class="opponent-name">${p.name} (${p.count})</div>
       ${p.vulnerable ? `<button class="catch-btn" onclick="catchPlayer('${p.id}')">จับผิด!</button>` : ''}
     `;
-    container.appendChild(seat);
+    target.appendChild(seatEl);
   });
 }
 
 function renderCardBacks(count) {
-  const shown = Math.min(count, 6);
+  const shown = Math.min(count, 7);
   let html = '';
-  for (let i = 0; i < shown; i++) {
-    html += `<div class="mini-card-back" style="margin-left:${i === 0 ? 0 : '-18px'}"></div>`;
-  }
+  for (let i = 0; i < shown; i++) html += `<div class="mini-card-back"></div>`;
   return html;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 function catchPlayer(targetId) {

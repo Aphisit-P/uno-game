@@ -14,30 +14,35 @@
   </div>
 
   <div class="game-table">
-    <!-- ที่นั่งคู่ต่อสู้ จัดวงกลมด้วย JS -->
-    <div class="table-surface" id="opponents"></div>
+    <div class="table-grid">
+      <div class="seat seat-top" id="seatTop"></div>
+      <div class="seat seat-left" id="seatLeft"></div>
 
-    <!-- กองกลาง -->
-    <div class="center-area">
-      <div class="pile-group">
-        <button class="draw-pile" id="drawPile" title="จั่วการ์ด">
-          <div class="deck-stack"></div>
-          <div class="deck-stack"></div>
-          <div class="deck-stack top"></div>
-        </button>
-        <div class="discard-pile" id="topCard"></div>
+      <div class="center-area">
+        <div class="pile-group">
+          <button class="draw-pile" id="drawPile" title="จั่วการ์ด">
+            <div class="deck-stack"></div>
+            <div class="deck-stack"></div>
+            <div class="deck-stack top"></div>
+          </button>
+          <div class="discard-pile" id="topCard"></div>
+        </div>
+        <div class="turn-indicator" id="turnIndicator"></div>
       </div>
-      <div class="turn-indicator" id="turnIndicator"></div>
+
+      <div class="seat seat-right" id="seatRight"></div>
+
+      <div class="seat seat-bottom">
+        <div class="your-info">
+          <span id="yourName"></span>
+          <button id="unoBtn" class="hidden">UNO!</button>
+        </div>
+        <div class="hand" id="hand"></div>
+      </div>
     </div>
 
-    <!-- มือของตัวเอง -->
-    <div class="your-area">
-      <div class="your-info">
-        <span id="yourName"></span>
-        <button id="unoBtn" class="hidden">UNO!</button>
-      </div>
-      <div class="hand" id="hand"></div>
-    </div>
+    <!-- สำหรับกรณีผู้เล่นเกิน 4 คน -->
+    <div class="overflow-seats" id="overflowSeats"></div>
   </div>
 
   <script src="https://uno-game-1i2s.onrender.com/socket.io/socket.io.js"></script>

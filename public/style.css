@@ -39,7 +39,7 @@ body {
   right: 12px;
   display: flex;
   gap: 8px;
-  z-index: 10;
+  z-index: 20;
 }
 
 .theme-switcher button {
@@ -48,51 +48,89 @@ body {
   border-radius: 50%;
   border: 2px solid var(--text);
   cursor: pointer;
+  background: var(--surface);
 }
 
+/* ---------- Lobby / Room (คงเดิม) ---------- */
+.lobby-container, .room-container {
+  max-width: 400px;
+  margin: 10vh auto;
+  padding: clamp(20px, 5vw, 40px);
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  text-align: center;
+}
+.lobby-container input, .room-container input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+.primary-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.share-link-box { display: flex; gap: 8px; margin: 16px 0; }
+.share-link-box input { flex: 1; font-size: 13px; }
+#playerList { list-style: none; padding: 0; text-align: left; }
+#playerList li { padding: 8px 12px; background: var(--bg); border-radius: 6px; margin-bottom: 6px; }
+
+/* ---------- โต๊ะเกม (Grid: บน/ซ้าย/กลาง/ขวา/ล่าง) ---------- */
 .game-table {
+  height: 100vh;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: clamp(8px, 3vw, 24px);
-  gap: clamp(12px, 2vh, 24px);
+  gap: 8px;
 }
 
-/* ----- พื้นที่คู่ต่อสู้ (วงกลมรอบโต๊ะ) ----- */
-.table-surface {
-  position: relative;
+.table-grid {
   flex: 1;
-  min-height: 160px;
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(200px, 2fr) minmax(80px, 1fr);
+  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+  min-height: 0;
 }
+
+.seat-top    { grid-column: 2; grid-row: 1; justify-self: center; }
+.seat-left   { grid-column: 1; grid-row: 2; align-self: center; justify-self: start; }
+.center-area { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.seat-right  { grid-column: 3; grid-row: 2; align-self: center; justify-self: end; }
+.seat-bottom { grid-column: 2; grid-row: 3; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 
 .opponent-seat {
-  position: absolute;
-  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  transition: left 0.3s ease, top 0.3s ease;
+  padding: 6px;
 }
-
-.opponent-seat.active-turn .opponent-cards {
+.opponent-seat.active-turn {
   box-shadow: 0 0 0 3px var(--accent);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .opponent-cards { display: flex; }
-
 .mini-card-back {
-  width: clamp(24px, 4vw, 40px);
-  height: clamp(36px, 6vw, 60px);
+  width: clamp(24px, 3.5vw, 38px);
+  height: clamp(36px, 5.5vw, 56px);
   background: var(--card-back);
   border-radius: 5px;
   border: 1px solid rgba(0,0,0,0.3);
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
-
 .opponent-name {
   font-size: clamp(11px, 2vw, 14px);
   background: var(--surface);
@@ -101,20 +139,20 @@ body {
   white-space: nowrap;
 }
 
-/* ----- กองกลาง ----- */
-.center-area {
+.overflow-seats {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 6px;
 }
 
+/* ---------- กองกลาง ---------- */
 .pile-group {
   display: flex;
   gap: clamp(16px, 4vw, 40px);
   align-items: center;
 }
-
 .draw-pile {
   position: relative;
   width: clamp(60px, 10vw, 100px);
@@ -124,7 +162,6 @@ body {
   padding: 0;
   background: transparent;
 }
-
 .deck-stack {
   position: absolute;
   width: 100%;
@@ -149,33 +186,53 @@ body {
   color: white;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
+.turn-indicator { font-weight: bold; font-size: clamp(13px, 2.5vw, 16px); }
 
-.turn-indicator {
+/* ---------- มือของตัวเอง ---------- */
+.your-info { display: flex; align-items: center; gap: 12px; font-weight: bold; }
+#unoBtn {
+  background: linear-gradient(135deg, #ff4d4d, #d32f2f);
+  color: white;
   font-weight: bold;
-  font-size: clamp(13px, 2.5vw, 16px);
+  font-size: clamp(12px, 2.5vw, 16px);
+  padding: 8px 18px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.5);
+  animation: pulse 1.5s infinite;
 }
-
-/* ----- มือของตัวเอง ----- */
-.your-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.your-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: bold;
-}
-
 #unoBtn.hidden { display: none; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
-.card.disabled {
-  opacity: 0.45;
-  pointer-events: none;
+.hand {
+  display: flex;
+  gap: -8px;
+  overflow-x: auto;
+  padding: 12px;
+  max-width: 100vw;
+  -webkit-overflow-scrolling: touch;
 }
+.card {
+  width: clamp(50px, 8vw, 90px);
+  height: clamp(75px, 12vw, 135px);
+  border-radius: 8px;
+  background: var(--surface);
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: clamp(14px, 2.5vw, 20px);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+  touch-action: manipulation;
+  margin-left: -18px;
+}
+.hand .card:first-child { margin-left: 0; }
+.card:active, .card:hover { transform: translateY(-10px); z-index: 5; }
+.card.disabled { opacity: 0.45; pointer-events: none; }
 
 .catch-btn {
   background: #ffca28;
@@ -184,78 +241,6 @@ body {
   padding: 2px 8px;
   font-size: 11px;
   cursor: pointer;
-}
-
-.discard-pile, .draw-pile {
-  width: clamp(60px, 10vw, 100px);
-  height: clamp(90px, 15vw, 150px);
-  border-radius: 10px;
-  background: var(--card-back);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.hand {
-  display: flex;
-  gap: clamp(-20px, -2vw, -8px); /* การ์ดซ้อนกันเล็กน้อยบนจอเล็ก */
-  overflow-x: auto;
-  padding: 12px;
-  max-width: 100vw;
-  -webkit-overflow-scrolling: touch; /* เลื่อนลื่นบน iPad/iPhone */
-}
-
-.card {
-  width: clamp(50px, 8vw, 90px);
-  height: clamp(75px, 12vw, 135px);
-  border-radius: 8px;
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: transform 0.15s;
-  touch-action: manipulation; /* กันการซูมเวลาแตะซ้ำบนมือถือ */
-}
-
-.card:active, .card:hover {
-  transform: translateY(-10px);
-}
-
-@media (max-width: 480px) {
-  .hand { gap: -28px; }
-  .card { width: 46px; height: 70px; font-size: 12px; }
-}
-
-#unoBtn {
-  background: linear-gradient(135deg, #ff4d4d, #d32f2f);
-  color: white;
-  font-weight: bold;
-  font-size: clamp(14px, 3vw, 20px);
-  padding: 12px 24px;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.5);
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.catch-btn {
-  background: #ffca28;
-  border: none;
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 11px;
-  cursor: pointer;
-  margin-left: 6px;
 }
 
 .toast {
@@ -271,68 +256,8 @@ body {
   z-index: 100;
   animation: slideUp 0.3s ease;
 }
+@keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translate(-50%, 20px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-.lobby-container, .room-container {
-  max-width: 400px;
-  margin: 10vh auto;
-  padding: clamp(20px, 5vw, 40px);
-  background: var(--surface);
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-  text-align: center;
-}
-
-.lobby-container input, .room-container input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px; /* กัน iOS auto-zoom ตอนแตะ input */
-}
-
-.primary-btn {
-  width: 100%;
-  padding: 14px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-.primary-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.share-link-box {
-  display: flex;
-  gap: 8px;
-  margin: 16px 0;
-}
-
-.share-link-box input {
-  flex: 1;
-  font-size: 13px;
-}
-
-#playerList {
-  list-style: none;
-  padding: 0;
-  text-align: left;
-}
-
-#playerList li {
-  padding: 8px 12px;
-  background: var(--bg);
-  border-radius: 6px;
-  margin-bottom: 6px;
+@media (max-width: 480px) {
+  .card { width: 46px; height: 70px; font-size: 12px; }
 }
