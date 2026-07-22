@@ -100,12 +100,13 @@ class UnoGame {
     this.nextTurn();
     return { success: true };
   }
-  // ผู้เล่นกดปุ่ม "UNO!" เพื่อประกาศว่าเหลือใบเดียว
+  // แก้ฟังก์ชัน callUno — อนุญาตให้กดตอนเหลือ 1 หรือ 2 ใบ
   callUno(playerId) {
     const player = this.players.find(p => p.id === playerId);
     if (!player) return { error: 'ไม่พบผู้เล่น' };
-    if (player.hand.length !== 1) return { error: 'กด UNO ได้เฉพาะตอนเหลือ 1 ใบเท่านั้น' };
-
+    if (player.hand.length !== 1 && player.hand.length !== 2) {
+      return { error: 'กด UNO ได้เฉพาะตอนเหลือ 1-2 ใบเท่านั้น' };
+    }
     this.unoCalledBy.add(playerId);
     player.vulnerableToUnoPenalty = false;
     return { success: true, callerName: player.name };
@@ -148,11 +149,23 @@ class UnoGame {
     this.advance();
   }
 
+  // แก้ฟังก์ชัน drawCards — เติมเด็คใหม่อัตโนมัติถ้าหมดจริง ๆ (ไม่มีวันจั่วไม่ได้)
   drawCards(playerId, count) {
     const player = this.players.find(p => p.id === playerId);
     for (let i = 0; i < count; i++) {
-      if (this.deck.length === 0) this.reshuffleDiscard();
+      if (this.deck.length === 0) {
+        if (this.discardPile.length > 1) {
+          this.reshuffleDiscard();
+        } else {
+          this.deck = createDeck(); // เติมสำรับใหม่ทั้งหมด กันเคสจนตรอก
+        }
+      }
       player.hand.push(this.deck.pop());
+    }
+    // เคลียร์สถานะ UNO ถ้าหลังจั่วแล้วไม่ได้เหลือ 1 ใบพอดี
+    if (player.hand.length !== 1) {
+      this.unoCalledBy.delete(playerId);
+      player.vulnerableToUnoPenalty = false;
     }
   }
 

@@ -76,6 +76,7 @@ io.on('connection', (socket) => {
 function broadcastState(room) {
   room.players.forEach(p => {
     io.to(p.id).emit('gameState', {
+      yourId: p.id,                          // 👈 เพิ่มบรรทัดนี้
       yourHand: p.hand,
       topCard: room.topCard(),
       currentPlayerId: room.currentPlayer().id,
@@ -83,7 +84,8 @@ function broadcastState(room) {
         id: pl.id,
         name: pl.name,
         count: pl.hand.length,
-        vulnerable: !!pl.vulnerableToUnoPenalty, // ใช้โชว์ปุ่ม "จับผิด" ที่หน้าคนอื่น
+        vulnerable: !!pl.vulnerableToUnoPenalty,
+        calledUno: room.unoCalledBy.has(pl.id), // 👈 เพิ่มบรรทัดนี้
       })),
     });
   });
