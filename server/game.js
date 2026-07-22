@@ -2,6 +2,20 @@
 const COLORS = ['red', 'yellow', 'green', 'blue'];
 const VALUES = ['0','1','2','3','4','5','6','7','8','9','skip','reverse','draw2'];
 
+// ในไฟล์ server/game.js (หรือไฟล์ที่สั่งแจกไพ่)
+function dealCards(players, deck) {
+    const CARDS_PER_PLAYER = 5; // 👈 เปลี่ยนจาก 1 เป็น 5 ใบตรงนี้
+
+    players.forEach(player => {
+        player.hand = [];
+        for (let i = 0; i < CARDS_PER_PLAYER; i++) {
+            if (deck.length > 0) {
+                player.hand.push(deck.pop());
+            }
+        }
+    });
+}
+
 function createDeck() {
   const deck = [];
   COLORS.forEach(color => {
@@ -23,6 +37,35 @@ function shuffle(deck) {
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
   return deck;
+}
+
+// เพิ่มฟังก์ชันนี้ลงใน server/game.js หรือ server/server.js
+function resetGame(roomId) {
+    const room = rooms[roomId]; // ดึงข้อมูลห้องปัจจุบัน
+    if (!room) return;
+
+    // 1. รีเซ็ตข้อมูลเกม
+    room.deck = createDeck();      // สร้างสำรับไพ่ใหม่
+    room.discardPile = [];         // ล้างกองไพ่ทิ้ง
+    room.gameState = 'waiting';    // เปลี่ยนสถานะกลับเป็นรอเล่น
+    
+    // 2. เคลียร์ไพ่ในมือของผู้เล่นทุกคน (แต่ไม่ลบผู้เล่นออกจากห้อง!)
+    room.players.forEach(player => {
+        player.hand = [];
+    });
+
+    // 3. แจ้งเตือนทุกคนในห้องว่าเกมรีเซ็ตแล้ว ให้โหลดหน้าจอใหม่
+    io.to(roomId).emit('gameResetSuccess', { players: room.players });
+}
+
+// ตรงจุดที่เช็กคนชนะ (เมื่อการ์ดในมือผู้เล่นเหลือ 0)
+if (player.hand.length === 0) {
+    io.to(roomId).emit('announceWinner', { winnerName: player.name });
+    
+    // รอ 3 วินาทีให้ผู้เล่นเห็นหน้าจอคนชนะ แล้วทำการรีเซ็ตเกม
+    setTimeout(() => {
+        resetGame(roomId);
+    }, 3000);
 }
 
 class UnoGame {

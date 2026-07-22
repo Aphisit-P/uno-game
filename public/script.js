@@ -35,6 +35,21 @@ socket.on('unoPenalty', ({ name }) => showToast(`⚠️ ${name} ลืมกด 
 socket.on('errorMsg', (msg) => showToast(`❌ ${msg}`));
 socket.on('gameOver', (winnerName) => showToast(`🏆 ${winnerName} ชนะ!`));
 
+// ใส่ในไฟล์ JS ฝั่ง public ( client side )
+socket.on('loadingCountdown', (data) => {
+    // นำตัวเลข data.seconds ไปใส่ในข้อความบนหน้าจอ
+    const loadingText = document.getElementById('loading-status'); // (ใช้ id ของข้อความใน html คุณ)
+    if (loadingText) {
+        loadingText.innerText = `กำลังเริ่มเกมในอีก ${data.seconds} วินาที...`;
+    }
+});
+
+// เมื่อเกมรีเซ็ตใหม่ ให้กลับไปแสดงหน้าห้องรอ
+socket.on('gameResetSuccess', () => {
+    alert('เริ่มรอบใหม่! กำลังเตรียมแจกการ์ด...');
+    // สั่งโหลดข้อมูลการ์ดใหม่ หรือรีเซ็ต UI ของคุณ
+});
+
 // ---------- FLIP animation สำหรับมือตัวเอง ----------
 function getCardPositions(container) {
   const positions = new Map();

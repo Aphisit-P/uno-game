@@ -38,3 +38,18 @@ document.getElementById('startGameBtn').onclick = () => {
 socket.on('gameStarted', () => {
   location.href = `game.html?room=${roomId}`;
 });
+
+// ใส่ในไฟล์ JS ฝั่ง public ( client side )
+socket.on('loadingCountdown', (data) => {
+    // นำตัวเลข data.seconds ไปใส่ในข้อความบนหน้าจอ
+    const loadingText = document.getElementById('loading-status'); // (ใช้ id ของข้อความใน html คุณ)
+    if (loadingText) {
+        loadingText.innerText = `กำลังเริ่มเกมในอีก ${data.seconds} วินาที...`;
+    }
+});
+
+// เมื่อเกมรีเซ็ตใหม่ ให้กลับไปแสดงหน้าห้องรอ
+socket.on('gameResetSuccess', () => {
+    alert('เริ่มรอบใหม่! กำลังเตรียมแจกการ์ด...');
+    // สั่งโหลดข้อมูลการ์ดใหม่ หรือรีเซ็ต UI ของคุณ
+});
